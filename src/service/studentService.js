@@ -4,15 +4,15 @@ export const addStudent = async ({id, name, password}) => {
     return repo.addStudent({id, name, password});
 };
 
-export const findStudent = async id => repo.findStudent(+id);
+export const findStudent = async id => renameId(await repo.findStudent(+id));
 
-export const deleteStudent = async id => repo.deleteStudent(+id);
+export const deleteStudent = async id => renameId(await repo.deleteStudent(+id));
 
-export const updateStudent = async (id, data) => repo.updateStudent(+id, data)
+export const updateStudent = async (id, data) => renameId(await repo.updateStudent(+id, data))
 
-export const addScore = async (id, exam, score) => repo.updateStudent(+id, {[`scores.${exam}`]: score})
+export const addScore = async (id, exam, score) => renameId(await repo.updateStudent(+id, {[`scores.${exam}`]: score}))
 
-export const findByName = async (name) => repo.findByName(name)
+export const findByName = async (name) => (await repo.findByName(name)).map(renameId)
 
 export const countByNames = async (names) => {
     // Ensure names is always an array not a string when only 1 name is passed
@@ -20,4 +20,12 @@ export const countByNames = async (names) => {
     return repo.countByNames(names);
 };
 
-export const findByMinScore = async (exam, minScore) => repo.findByMinScore(exam, +minScore);
+export const findByMinScore = async (exam, minScore) => (await repo.findByMinScore(exam, +minScore)).map(renameId);
+
+function renameId(student) {
+    if (student) {
+        student.id = student._id;
+        delete student._id;
+    }
+    return student;
+}
