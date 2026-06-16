@@ -21,32 +21,30 @@ export const addStudent = ({id, name, password}) => {
 export const findStudent = id => students.get(id)
 
 export const deleteStudent = id => {
-    return students.delete(id)
-}
-
-export const updateStudent = (id, student) => {
-    return students.set(id, student)
-    // return student
-}
-
-export const addScore = (id, exam, score) => {
     const student = students.get(id)
-    if (!student) {
-        return false
-    }
-    student.scores[exam] = score
+    students.delete(id)
     return student
 }
 
-export const findByName = name => {
-    return Array.from(students.values()).filter(student => student.name.toLowerCase() === name.toLowerCase())
+export const updateStudent = (student) => {
+    if (students.has(student.id)) {
+        students.set(student.id, student)
+        return student
+    }
 }
+
+export const findByName = name => [...students.values()].filter(s => s.name.toLowerCase() === name.toLowerCase());
+
+// return Array.from(students.values()).filter(student => student.name.toLowerCase() === name.toLowerCase())
+
 
 export const countByNames = names => {
+    console.log(Array.isArray(names));
+    names = names.map(n => n.toLowerCase());
+    return [...students.values()].filter(s => names.includes(s.name.toLowerCase())).length;
     // return Array.from(students.values()).filter(student => names.includes(student.name)).length
-    return Array.from(students.values()).filter(student => names.map(name => name.toLowerCase()).includes(student.name.toLowerCase())).length
+    // return Array.from(students.values()).filter(student => names.map(name => name.toLowerCase()).includes(student.name.toLowerCase())).length
 }
 
-export const findByMinScore = (exam, minScore) => {
-    return Array.from(students.values()).filter(student => student.scores[exam] >= minScore)
-}
+export const findByMinScore = (exam, minScore) => [...students.values()].filter(s => s.scores[exam] >= minScore);
+// return Array.from(students.values()).filter(student => student.scores[exam] >= minScore)
