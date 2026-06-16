@@ -18,11 +18,26 @@ export const deleteStudent = async id => await collection.findOneAndDelete({_id:
 
 export const updateStudent = async (id, data) => await collection.findOneAndUpdate({_id: id}, {$set: data}, {returnDocument: 'after', projection: {scores: 0}});
 
-export const findByName = async name => await collection.find({name: {$regex: `^${name}$`, $options: 'i'}}, {projection: {password: 0}}).toArray();
+export const findByName = async name => {
+    const students = [];
+    const cursor = await collection.find({name: {$regex: `^${name}$`, $options: 'i'}}, {projection: {password: 0}});
+    // async iteration over cursor === cursor.toArray()
+    while (await cursor.hasNext()) {
+        students.push(await cursor.next());
+    }
+    return students;
+};
 
 export const countByNames = async names => {
     const regexConditions = names.map(name => ({name: {$regex: `^${name}$`, $options: 'i'}}));
     return await collection.countDocuments({$or: regexConditions});
 }
 
-export const findByMinScore = async (exam, minScore) => await collection.find({[`scores.${exam}`]: {$gte: minScore}}, {projection: {password: 0}}).toArray();
+export const findByMinScore = async (exam, minScore) => {
+    const students = [];
+    const cursor = await collection.find({[`scores.${exam}`]: {$gte: minScore}}, {projection: {password: 0}});
+    for await (const student of cursor) {
+        students.push(student);
+    }
+    return students;
+};
